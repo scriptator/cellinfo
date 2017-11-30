@@ -8,13 +8,14 @@ import android.view.ViewGroup
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 
 
 /**
  * Created by johannesvass on 27.11.17.
  */
-class CellMapFragment : Fragment() {
+class CellMapFragment : Fragment(), OnMapReadyCallback {
 
     var mapView: MapView? = null
     var map: GoogleMap? = null
@@ -25,17 +26,15 @@ class CellMapFragment : Fragment() {
         val rootView = inflater.inflate(R.layout.map_layout, container, false)
 
         // Gets the MapView from the XML layout and creates it
-        // TODO why does the following line not compile?
-//        mapView = rootView.findViewById(R.id.map_view) as MapView
+        mapView = rootView.findViewById<MapView>(R.id.map_view)
         mapView?.onCreate(savedInstanceState)
 
-
-//        mapView.getMapAsync(this)
+        mapView?.getMapAsync(this)
 
         return rootView
     }
 
-    fun onMapReady(googleMap: GoogleMap) {
+    override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map?.getUiSettings()?.isMyLocationButtonEnabled = false
         try {
