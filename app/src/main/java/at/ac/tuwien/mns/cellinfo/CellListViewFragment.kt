@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
 
 /**
  * Created by johannesvass on 27.11.17.
@@ -14,7 +15,8 @@ class CellListViewFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.list_layout, container, false)
-        // rootView.section_label.text = getString(R.string.section_format, arguments.getInt(ARG_SECTION_NUMBER))
+        var listView = rootView.findViewById<ListView>(R.id.cell_list_view)
+        listView.adapter = CellListViewAdapter(activity)
         return rootView
     }
 
