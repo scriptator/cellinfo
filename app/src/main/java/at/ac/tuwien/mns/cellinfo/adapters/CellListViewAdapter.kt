@@ -1,4 +1,4 @@
-package at.ac.tuwien.mns.cellinfo
+package at.ac.tuwien.mns.cellinfo.adapters
 
 import android.app.Activity
 import android.content.Context
@@ -7,9 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import at.ac.tuwien.mns.cellinfo.R
 
 /**
- * Created by domin on 30.11.2017.
+ * Created by dominik on 30.11.2017.
  */
 class CellListViewAdapter(private val activity: Activity) : BaseAdapter() {
 

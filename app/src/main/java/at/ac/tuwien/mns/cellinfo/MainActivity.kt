@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import at.ac.tuwien.mns.cellinfo.fragments.CellListViewFragment
+import at.ac.tuwien.mns.cellinfo.fragments.CellMapFragment
 
 import kotlinx.android.synthetic.main.activity_main.*
 

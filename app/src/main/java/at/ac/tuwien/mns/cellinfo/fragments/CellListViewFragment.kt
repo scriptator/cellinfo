@@ -1,4 +1,4 @@
-package at.ac.tuwien.mns.cellinfo
+package at.ac.tuwien.mns.cellinfo.fragments
 
 import android.support.v4.app.Fragment
 import android.os.Bundle
@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
+import at.ac.tuwien.mns.cellinfo.adapters.CellListViewAdapter
+import at.ac.tuwien.mns.cellinfo.R
 
 /**
  * Created by johannesvass on 27.11.17.

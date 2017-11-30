@@ -1,10 +1,11 @@
-package at.ac.tuwien.mns.cellinfo
+package at.ac.tuwien.mns.cellinfo.fragments
 
 import android.support.v4.app.Fragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import at.ac.tuwien.mns.cellinfo.R
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.CameraUpdateFactory
