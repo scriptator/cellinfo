@@ -2,10 +2,13 @@ package at.ac.tuwien.mns.cellinfo.adapters
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.PorterDuff
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ImageView
 import android.widget.TextView
 import at.ac.tuwien.mns.cellinfo.R
 
@@ -40,13 +43,19 @@ class CellListViewAdapter(private val activity: Activity) : BaseAdapter() {
             view = convertView
             rowHolder = view.tag as ListRowHolder
         }
-
+        val color: Int = if(position != 0) {
+            ContextCompat.getColor(rowHolder.icon?.context, R.color.colorInactive)
+        } else {
+            ContextCompat.getColor(rowHolder.icon?.context,R.color.colorPrimary)
+        }
+        rowHolder.icon?.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         rowHolder.label?.text = cellList[position]
         return view
     }
 
     private class ListRowHolder(row: View?) {
 
+        val icon: ImageView? = row?.findViewById<ImageView>(R.id.icon)
         val label: TextView? = row?.findViewById<TextView>(R.id.label)
 
     }
