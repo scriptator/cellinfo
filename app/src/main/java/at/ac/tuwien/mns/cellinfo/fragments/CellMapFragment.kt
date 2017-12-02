@@ -1,26 +1,43 @@
 package at.ac.tuwien.mns.cellinfo.fragments
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.Criteria
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.support.v4.app.Fragment
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import at.ac.tuwien.mns.cellinfo.R
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 
 
 /**
  * Created by johannesvass on 27.11.17.
  */
-class CellMapFragment : Fragment(), OnMapReadyCallback {
-
-    var mapView: MapView? = null
-    var map: GoogleMap? = null
-
+class CellMapFragment :
+        Fragment(),
+        OnMapReadyCallback {
+    private var mapView: MapView? = null
+    private var mMap: GoogleMap? = null
+    private var mLocationPermission: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -36,19 +53,24 @@ class CellMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
-        map?.getUiSettings()?.isMyLocationButtonEnabled = false
-        try {
-            map?.isMyLocationEnabled = true
-        } catch (e: SecurityException) {
-            e.printStackTrace()
+        mMap = googleMap
+
+        val marker = mMap?.addMarker(MarkerOptions()
+                .position(LatLng(48.213, 16.233))
+                .title("Testmarker")
+                .snippet("Population: 1,213,000"))
+
+        mMap?.setInfoWindowAdapter(CellTowerMarkerPopupAdapter())
+
+        // try to zoom to current position
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+            this.mLocationPermission = false
+        } else {
+            this.mLocationPermission = true
+            mMap?.setMyLocationEnabled(true)
+            this.zoomToCurrentLocation()
         }
-
-        // Updates the location and zoom of the MapView
-        /*CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(43.1, -87.9), 10);
-        map.animateCamera(cameraUpdate);*/
-        map?.moveCamera(CameraUpdateFactory.newLatLng(LatLng(48.0, 18.0)))
-
     }
 
     override fun onResume() {
@@ -89,6 +111,96 @@ class CellMapFragment : Fragment(), OnMapReadyCallback {
             args.putInt(ARG_SECTION_NUMBER, sectionNumber)
             fragment.arguments = args
             return fragment
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+                                            grantResults: IntArray) {
+        // location permission request
+        if (requestCode == 1) {
+            if (permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    this.mLocationPermission = true
+                    mMap?.isMyLocationEnabled = true
+                    this.zoomToCurrentLocation()
+                }
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun zoomToCurrentLocation() {
+        if (this.mLocationPermission) {
+            val locationManager = activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+            locationManager!!.requestSingleUpdate(LocationManager.GPS_PROVIDER,
+                    ZoomToLocationListener(), null)
+            val location = locationManager.getLastKnownLocation(
+                    locationManager.getBestProvider(Criteria(), false))
+            if (location != null) {
+                zoomToLocation(location)
+            }
+        }
+    }
+
+    private fun zoomToLocation(location: Location) {
+        mMap?.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                        LatLng(location.latitude, location.longitude),
+                        14f))
+    }
+
+    private inner class ZoomToLocationListener : LocationListener {
+        override fun onLocationChanged(location: Location?) {
+            if (location != null) {
+                zoomToLocation(location)
+            }
+        }
+
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+
+        override fun onProviderEnabled(provider: String) {}
+
+        override fun onProviderDisabled(provider: String) {}
+    }
+
+    internal inner class CellTowerMarkerPopupAdapter : GoogleMap.InfoWindowAdapter {
+
+        private val mWindow: View = layoutInflater.inflate(R.layout.cell_tower_marker_popup, null)
+        private val mContents: View = layoutInflater.inflate(R.layout.cell_tower_marker_popup, null)
+
+        override fun getInfoWindow(marker: Marker): View {
+            render(marker, mWindow)
+            return mWindow
+        }
+
+        override fun getInfoContents(marker: Marker): View {
+            render(marker, mContents)
+            return mContents
+        }
+
+        private fun render(marker: Marker, view: View) {
+            val title = marker.title
+            val titleUi: TextView = view.findViewById(R.id.title)
+            if (title != null) {
+                // Spannable string allows us to edit the formatting of the text.
+                val titleText = SpannableString(title)
+                titleText.setSpan(ForegroundColorSpan(Color.RED), 0, titleText.length, 0)
+                titleUi.setText(titleText)
+            } else {
+                titleUi.setText("")
+            }
+
+            val snippet = marker.snippet
+            val snippetUi: TextView = view.findViewById(R.id.snippet)
+            if (snippet != null && snippet.length > 12) {
+                val snippetText = SpannableString(snippet)
+                snippetText.setSpan(ForegroundColorSpan(Color.MAGENTA), 0, 10, 0)
+                snippetText.setSpan(ForegroundColorSpan(Color.BLUE), 12, snippet.length, 0)
+                snippetUi.setText(snippetText)
+            } else {
+                snippetUi.setText("")
+            }
         }
     }
 }
