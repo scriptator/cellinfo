@@ -21,4 +21,7 @@
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
         AIzaSyBOxB2YYce5E7T8OJYDUYmFyAyNim-zw7k
     </string>
+    <string name="opencellid_key" templateMergeStrategy="preserve" translatable="false">
+        9bf33f7d269c96
+    </string>
 </resources>

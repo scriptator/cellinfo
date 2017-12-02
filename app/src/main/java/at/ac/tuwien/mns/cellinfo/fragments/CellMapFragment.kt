@@ -11,7 +11,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.support.v4.app.Fragment
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -20,6 +19,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import at.ac.tuwien.mns.cellinfo.R
+import at.ac.tuwien.mns.cellinfo.service.MobileNetworkService
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -27,6 +27,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 
 
 /**
@@ -39,6 +41,11 @@ class CellMapFragment :
     private var mMap: GoogleMap? = null
     private var mLocationPermission: Boolean = false
 
+    private var mobileNetworkService: MobileNetworkService? = null;
+
+    private var currentCellSubscription: Disposable? = null;
+    private var currentCellMarker: Marker? = null;
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.map_layout, container, false)
@@ -49,16 +56,23 @@ class CellMapFragment :
 
         mapView?.getMapAsync(this)
 
+        mobileNetworkService = MobileNetworkService(getString(R.string.opencellid_key))
+
         return rootView
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        val marker = mMap?.addMarker(MarkerOptions()
-                .position(LatLng(48.213, 16.233))
-                .title("Testmarker")
-                .snippet("Population: 1,213,000"))
+        currentCellSubscription =  mobileNetworkService?.currentCell()
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribe{ cell -> run {
+            currentCellMarker?.remove();
+            currentCellMarker = mMap?.addMarker(MarkerOptions()
+                    .position(cell.getLocation())
+                    .title(cell.cellId.toString())
+                    .snippet("Some Details"))
+        }}
 
         mMap?.setInfoWindowAdapter(CellTowerMarkerPopupAdapter())
 
@@ -86,6 +100,7 @@ class CellMapFragment :
 
     override fun onDestroy() {
         super.onDestroy()
+        currentCellSubscription?.dispose()
         mapView?.onDestroy()
     }
 
