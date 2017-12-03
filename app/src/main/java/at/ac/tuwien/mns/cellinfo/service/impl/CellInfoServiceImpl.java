@@ -5,12 +5,17 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
 import android.telephony.CellInfo;
+import android.telephony.CellInfoGsm;
+import android.telephony.CellInfoLte;
+import android.telephony.CellInfoWcdma;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import at.ac.tuwien.mns.cellinfo.dto.Cell;
 import at.ac.tuwien.mns.cellinfo.service.CellInfoService;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
@@ -20,6 +25,8 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class CellInfoServiceImpl implements CellInfoService {
+
+    private final static String LOG_TAG = "CellInfoServiceImpl";
 
     private final Context context;
     private List<CellInfo> cellInfoList;
@@ -49,8 +56,39 @@ public class CellInfoServiceImpl implements CellInfoService {
     }
 
     @Override
-    public synchronized CellInfo getActiveCellInfo() {
-        return activeCellInfo;
+    public synchronized Cell getActiveCellInfo() {
+        Cell result = new Cell();
+        int mcc = 0, mnc = 0, lac = 0, cid = 0;
+        String radio = "";
+
+        if (activeCellInfo instanceof CellInfoWcdma) {
+            CellInfoWcdma cellInfoWcdma = (CellInfoWcdma) activeCellInfo;
+            mcc = cellInfoWcdma.getCellIdentity().getMcc();
+            mnc = cellInfoWcdma.getCellIdentity().getMnc();
+            lac = cellInfoWcdma.getCellIdentity().getLac();
+            cid = cellInfoWcdma.getCellIdentity().getCid();
+            radio = "wcdma";
+        } else if (activeCellInfo instanceof CellInfoLte) {
+            CellInfoLte cellInfoLte = (CellInfoLte) activeCellInfo;
+            mcc = cellInfoLte.getCellIdentity().getMcc();
+            mnc = cellInfoLte.getCellIdentity().getMnc();
+            lac = cellInfoLte.getCellIdentity().getTac();
+            cid = cellInfoLte.getCellIdentity().getCi();
+            radio = "lte";
+        } else if (activeCellInfo instanceof CellInfoGsm) {
+            CellInfoGsm cellInfoGsm = (CellInfoGsm) activeCellInfo;
+            mcc = cellInfoGsm.getCellIdentity().getMcc();
+            mnc = cellInfoGsm.getCellIdentity().getMnc();
+            lac = cellInfoGsm.getCellIdentity().getLac();
+            cid = cellInfoGsm.getCellIdentity().getCid();
+            radio = "gsm";
+        }
+        result.setMcc(mcc);
+        result.setMnc(mnc);
+        result.setLac(lac);
+        result.setCellId(cid);
+        result.setRadio(radio);
+        return result;
     }
 
     @Override
@@ -68,8 +106,8 @@ public class CellInfoServiceImpl implements CellInfoService {
     }
 
     private synchronized void setActiveCellInfo(CellInfo activeCellInfo) {
-        System.out.println("Setting active cell info.");
-        System.out.println(activeCellInfo);
+        Log.i(LOG_TAG, "Setting active cell info.");
+        Log.i(LOG_TAG, activeCellInfo.toString());
         this.activeCellInfo = activeCellInfo;
     }
 
@@ -84,8 +122,8 @@ public class CellInfoServiceImpl implements CellInfoService {
     }
 
     private synchronized void setCellInfoList(List<CellInfo> cellInfoList) {
-        System.out.println("Setting cell info list.");
-        System.out.println(cellInfoList);
+        Log.i(LOG_TAG, "Setting cell info list.");
+        Log.i(LOG_TAG, cellInfoList.toString());
         this.cellInfoList = cellInfoList;
     }
 

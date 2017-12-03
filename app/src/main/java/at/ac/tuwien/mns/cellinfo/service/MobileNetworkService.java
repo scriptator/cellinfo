@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import at.ac.tuwien.mns.cellinfo.dto.Cell;
 import at.ac.tuwien.mns.cellinfo.dto.CellDetails;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
@@ -21,11 +22,14 @@ public class MobileNetworkService {
     private final OpenCellIdService openCellIdService;
     private final String opencellidApiKey;
 
+    private final CellInfoService cellInfoService;
+
     // Observables
     private Observable<CellDetails> currentCellObs = null;
 
-    public MobileNetworkService(String opencellidApiKey) {
+    public MobileNetworkService(String opencellidApiKey, CellInfoService cellInfoService) {
         this.opencellidApiKey = opencellidApiKey;
+        this.cellInfoService = cellInfoService;
         this.openCellIdService = ServiceFactory.getOpenCellIdService();
 
         this.currentCellObs = Observable.interval(10, TimeUnit.SECONDS, Schedulers.io())
@@ -33,17 +37,19 @@ public class MobileNetworkService {
                 .doOnError(err -> System.err.println("Error retrieving messages: " + err))
                 .retry()
                 .distinct();
+        this.currentCellObs.subscribe(System.out::println);
     }
 
     // blocking
     private CellDetails fetchCellDetails() throws IOException {
+        Cell activeCellInfo = cellInfoService.getActiveCellInfo();
         Call<CellDetails> call = openCellIdService.getCellDetails(
                 this.opencellidApiKey,
-                232,
-                1,
-                17004,
-                51011,
-                "gsm",
+                activeCellInfo.getMcc(),
+                activeCellInfo.getMnc(),
+                activeCellInfo.getLac(),
+                activeCellInfo.getCellId(),
+                activeCellInfo.getRadio(),
                 "json"
         );
         Response<CellDetails> response;

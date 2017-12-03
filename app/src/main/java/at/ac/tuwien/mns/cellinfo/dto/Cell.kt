@@ -4,10 +4,10 @@ package at.ac.tuwien.mns.cellinfo.dto
  * Created by johannesvass on 02.12.17.
  */
 open class Cell {
-    val mcc: Int = 0
-    val mnc: Int = 0
-    val lac: Int = 0
+    var mcc: Int = 0
+    var mnc: Int = 0
+    var lac: Int = 0
 
-    val cellId: Int = 0
-    val radio: String = ""
+    var cellId: Int = 0
+    var radio: String = ""
 }

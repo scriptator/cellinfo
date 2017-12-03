@@ -6,10 +6,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v7.app.AppCompatActivity
-import android.telephony.CellInfoCdma
-import android.telephony.CellInfoGsm
-import android.telephony.CellInfoLte
-import android.telephony.CellInfoWcdma
 import android.view.Menu
 import android.view.MenuItem
 import at.ac.tuwien.mns.cellinfo.fragments.CellListViewFragment
@@ -30,7 +26,6 @@ class MainActivity : AppCompatActivity() {
      * [android.support.v4.app.FragmentStatePagerAdapter].
      */
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
-    private var cellInfoService: CellInfoService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,15 +44,15 @@ class MainActivity : AppCompatActivity() {
 
         cellInfoService = CellInfoServiceImpl(this)
 
-        while (true) {
-            println("All cell infos: " + (cellInfoService as CellInfoServiceImpl).allCellInfo)
-            println("Active cell info: " + (cellInfoService as CellInfoServiceImpl).activeCellInfo)
-            println("CellInfoWcdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoWcdma::class.java))
-            println("CellInfoCdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoCdma::class.java))
-            println("CellInfoLte types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoLte::class.java))
-            println("CellInfoGsm types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoGsm::class.java))
-            Thread.sleep(1000)
-        }
+//        while (true) {
+//            println("All cell infos: " + (cellInfoService as CellInfoServiceImpl).allCellInfo)
+//            println("Active cell info: " + (cellInfoService as CellInfoServiceImpl).activeCellInfo)
+//            println("CellInfoWcdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoWcdma::class.java))
+//            println("CellInfoCdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoCdma::class.java))
+//            println("CellInfoLte types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoLte::class.java))
+//            println("CellInfoGsm types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoGsm::class.java))
+//            Thread.sleep(1000)
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -100,5 +95,9 @@ class MainActivity : AppCompatActivity() {
             // Show 2 total pages.
             return 2
         }
+    }
+
+    companion object {
+        var cellInfoService: CellInfoService? = null
     }
 }

@@ -4,6 +4,8 @@ import android.telephony.CellInfo;
 
 import java.util.List;
 
+import at.ac.tuwien.mns.cellinfo.dto.Cell;
+
 /**
  * Created by Hann on 03.12.2017.
  */
@@ -22,7 +24,7 @@ public interface CellInfoService {
      *
      * @return
      */
-    CellInfo getActiveCellInfo();
+    Cell getActiveCellInfo();
 
     /**
      * Retrieve all specific types of cell info object from the cell info list

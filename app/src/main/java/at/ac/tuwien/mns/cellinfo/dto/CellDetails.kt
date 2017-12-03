@@ -12,4 +12,10 @@ class CellDetails : Cell() {
     fun getLocation(): LatLng {
         return LatLng(lat, lon)
     }
+
+    override fun toString(): String {
+        return "CellDetails(lat=$lat, lon=$lon)"
+    }
+
+
 }

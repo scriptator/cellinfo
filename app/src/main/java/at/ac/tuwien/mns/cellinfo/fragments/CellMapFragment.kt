@@ -18,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import at.ac.tuwien.mns.cellinfo.MainActivity
 import at.ac.tuwien.mns.cellinfo.R
 import at.ac.tuwien.mns.cellinfo.service.MobileNetworkService
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -56,7 +57,7 @@ class CellMapFragment :
 
         mapView?.getMapAsync(this)
 
-        mobileNetworkService = MobileNetworkService(getString(R.string.opencellid_key))
+        mobileNetworkService = MobileNetworkService(getString(R.string.opencellid_key), MainActivity.cellInfoService)
 
         return rootView
     }
