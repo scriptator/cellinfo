@@ -9,7 +9,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ServiceFactory {
 
     private static OpenCellIdService openCellIdService;
-    private static MobileNetworkService mobileNetworkService;
 
     @NotNull
     public static OpenCellIdService getOpenCellIdService() {

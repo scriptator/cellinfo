@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabs))
         tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
 
-        cellInfoService = CellInfoServiceImpl(this)
+        cellInfoService = CellInfoServiceImpl(this, getString(R.string.opencellid_key))
 
 //        while (true) {
 //            println("All cell infos: " + (cellInfoService as CellInfoServiceImpl).allCellInfo)

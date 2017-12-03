@@ -12,14 +12,19 @@ import android.telephony.CellSignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import at.ac.tuwien.mns.cellinfo.dto.Cell;
+import at.ac.tuwien.mns.cellinfo.dto.CellDetails;
 import at.ac.tuwien.mns.cellinfo.service.CellInfoService;
+import at.ac.tuwien.mns.cellinfo.service.ServiceFactory;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * Created by Hann on 03.12.2017.
@@ -30,71 +35,97 @@ public class CellInfoServiceImpl implements CellInfoService {
     private final static String LOG_TAG = "CellInfoServiceImpl";
 
     private final Context context;
-    private List<CellInfo> cellInfoList;
-    private CellInfo activeCellInfo;
+    private final String opencellidApiKey;
 
-    public CellInfoServiceImpl(Context context) {
+    // Observables
+    private Observable<List<CellInfo>> cellInfoObs;
+    private Observable<CellDetails> activeCellObs;
+    private Observable<List<CellDetails>> cellListObs;
+
+    public CellInfoServiceImpl(Context context, String opencellidApiKey) {
         this.context = context;
+        this.opencellidApiKey = opencellidApiKey;
 
-        Observable.timer(0, TimeUnit.SECONDS, Schedulers.io())
+        this.cellInfoObs = Observable.interval(0,10, TimeUnit.SECONDS, Schedulers.io())
                 .map(tick -> fetchAllCellInfo())
                 .doOnError(err -> System.err.println("Error retrieving messages: " + err))
                 .retry()
-                .distinct()
-                .subscribe(this::postProcessCellInfoList);
+                .distinct();
 
-        Observable.interval(10, TimeUnit.SECONDS, Schedulers.io())
-                .map(tick -> fetchAllCellInfo())
-                .doOnError(err -> System.err.println("Error retrieving messages: " + err))
-                .retry()
-                .distinct()
-                .subscribe(this::postProcessCellInfoList);
+        // observable which converts CellInfo to CellDetails (including location query)
+        this.cellListObs = this.cellInfoObs
+                .map(this::parseCellInfoList)
+                .map(this::fetchCellDetails);
+
+        // observable which emits the currently active cell from cellListObs
+        this.activeCellObs = this.cellListObs
+                .map(list -> {
+                    for (CellDetails c: list) {
+                        if (c.getRegistered()) {
+                            return c;
+                        }
+                    }
+                    return null;
+                });
     }
 
     @Override
-    public synchronized List<Cell> getAllCellInfo() {
-        return parseCellInfoList(cellInfoList);
+    public Observable<List<CellInfo>> getCellInfoList() {
+        return this.cellInfoObs;
     }
 
     @Override
-    public synchronized Cell getActiveCellInfo() {
-        return parseCellInfo(activeCellInfo);
+    public Observable<List<CellDetails>> getCellDetailsList() {
+        return this.cellListObs;
     }
 
     @Override
-    public <T extends CellInfo> List<Cell> getSpecificTypesOfCellInfo(Class<T> tClass) {
-        List<CellInfo> result = new ArrayList<>();
-        if (cellInfoList == null) {
-            return new ArrayList<>();
-        }
-        for (CellInfo cellInfo : cellInfoList) {
-            if (tClass.equals(cellInfo.getClass())) {
-                result.add(cellInfo);
+    public Observable<CellDetails> getActiveCellDetails() {
+        return this.activeCellObs;
+    }
+
+//    @Override
+//    public <T extends CellInfo> List<Cell> getSpecificTypesOfCellInfo(Class<T> tClass) {
+//        List<CellInfo> result = new ArrayList<>();
+//        if (cellInfoList == null) {
+//            return new ArrayList<>();
+//        }
+//        for (CellInfo cellInfo : cellInfoList) {
+//            if (tClass.equals(cellInfo.getClass())) {
+//                result.add(cellInfo);
+//            }
+//        }
+//        return parseCellInfoList(result);
+//    }
+
+    // blocking call --> if it takes too long: refactor
+    private List<CellDetails> fetchCellDetails(List<Cell> cellList) throws IOException {
+        List<CellDetails> cellDetailsList = new ArrayList<>();
+        for (Cell c: cellList) {
+            Call<CellDetails> call = ServiceFactory.getOpenCellIdService().getCellDetails(
+                    this.opencellidApiKey,
+                    c.getMcc(),
+                    c.getMnc(),
+                    c.getLac(),
+                    c.getCid(),
+                    c.getRadio(),
+                    "json"
+            );
+            Response<CellDetails> response;
+            try {
+                response = call.execute();
+            } catch (IOException e) {
+                throw new IOException("Fetching cell details failed", e);
+            }
+            if (response.isSuccessful()) {
+                CellDetails enrichedCellDetails = new CellDetails(c);
+                enrichedCellDetails.setLocation(response.body().getLocation());
+                cellDetailsList.add(enrichedCellDetails);
+            } else {
+                throw new IOException("API Error: " + response.errorBody().string());
             }
         }
-        return parseCellInfoList(result);
-    }
-
-    private synchronized void setActiveCellInfo(CellInfo activeCellInfo) {
-        Log.i(LOG_TAG, "Setting active cell info.");
-        Log.i(LOG_TAG, activeCellInfo.toString());
-        this.activeCellInfo = activeCellInfo;
-    }
-
-    private void postProcessCellInfoList(List<CellInfo> cellInfoList) {
-        for (CellInfo cellInfo : cellInfoList) {
-            if (cellInfo.isRegistered()) {
-                setActiveCellInfo(cellInfo);
-                break;
-            }
-        }
-        setCellInfoList(cellInfoList);
-    }
-
-    private synchronized void setCellInfoList(List<CellInfo> cellInfoList) {
-        Log.i(LOG_TAG, "Setting cell info list.");
-        Log.i(LOG_TAG, cellInfoList.toString());
-        this.cellInfoList = cellInfoList;
+        return cellDetailsList;
     }
 
     private List<CellInfo> fetchAllCellInfo() {
@@ -119,39 +150,44 @@ public class CellInfoServiceImpl implements CellInfoService {
     private Cell parseCellInfo(CellInfo cellInfo) {
         Cell result = new Cell();
         int mcc = 0, mnc = 0, lac = 0, cid = 0;
+        boolean registered = false;
         String radio = "";
         CellSignalStrength cellSignalStrength = null;
 
-        if (activeCellInfo instanceof CellInfoWcdma) {
-            CellInfoWcdma cellInfoWcdma = (CellInfoWcdma) activeCellInfo;
+        if (cellInfo instanceof CellInfoWcdma) {
+            CellInfoWcdma cellInfoWcdma = (CellInfoWcdma) cellInfo;
             mcc = cellInfoWcdma.getCellIdentity().getMcc();
             mnc = cellInfoWcdma.getCellIdentity().getMnc();
             lac = cellInfoWcdma.getCellIdentity().getLac();
             cid = cellInfoWcdma.getCellIdentity().getCid();
+            registered = cellInfoWcdma.isRegistered();
             cellSignalStrength = cellInfoWcdma.getCellSignalStrength();
             radio = "wcdma";
-        } else if (activeCellInfo instanceof CellInfoLte) {
-            CellInfoLte cellInfoLte = (CellInfoLte) activeCellInfo;
+        } else if (cellInfo instanceof CellInfoLte) {
+            CellInfoLte cellInfoLte = (CellInfoLte) cellInfo;
             mcc = cellInfoLte.getCellIdentity().getMcc();
             mnc = cellInfoLte.getCellIdentity().getMnc();
             lac = cellInfoLte.getCellIdentity().getTac();
             cid = cellInfoLte.getCellIdentity().getCi();
+            registered = cellInfoLte.isRegistered();
             cellSignalStrength = cellInfoLte.getCellSignalStrength();
             radio = "lte";
-        } else if (activeCellInfo instanceof CellInfoGsm) {
-            CellInfoGsm cellInfoGsm = (CellInfoGsm) activeCellInfo;
+        } else if (cellInfo instanceof CellInfoGsm) {
+            CellInfoGsm cellInfoGsm = (CellInfoGsm) cellInfo;
             mcc = cellInfoGsm.getCellIdentity().getMcc();
             mnc = cellInfoGsm.getCellIdentity().getMnc();
             lac = cellInfoGsm.getCellIdentity().getLac();
             cid = cellInfoGsm.getCellIdentity().getCid();
+            registered = cellInfoGsm.isRegistered();
             cellSignalStrength = cellInfoGsm.getCellSignalStrength();
             radio = "gsm";
         }
         result.setMcc(mcc);
         result.setMnc(mnc);
         result.setLac(lac);
-        result.setCellId(cid);
+        result.setCid(cid);
         result.setRadio(radio);
+        result.setRegistered(registered);
         result.setStrength(cellSignalStrength);
         return result;
     }

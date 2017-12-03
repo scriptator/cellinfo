@@ -20,7 +20,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import at.ac.tuwien.mns.cellinfo.MainActivity
 import at.ac.tuwien.mns.cellinfo.R
-import at.ac.tuwien.mns.cellinfo.service.MobileNetworkService
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -42,8 +41,6 @@ class CellMapFragment :
     private var mMap: GoogleMap? = null
     private var mLocationPermission: Boolean = false
 
-    private var mobileNetworkService: MobileNetworkService? = null;
-
     private var currentCellSubscription: Disposable? = null;
     private var currentCellMarker: Marker? = null;
 
@@ -57,22 +54,20 @@ class CellMapFragment :
 
         mapView?.getMapAsync(this)
 
-        mobileNetworkService = MobileNetworkService(getString(R.string.opencellid_key), MainActivity.cellInfoService)
-
         return rootView
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        currentCellSubscription = mobileNetworkService?.currentCell()
+        currentCellSubscription = MainActivity.cellInfoService?.activeCellDetails
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe { cell ->
                     run {
                         currentCellMarker?.remove();
                         currentCellMarker = mMap?.addMarker(MarkerOptions()
                                 .position(cell.getLocation())
-                                .title(cell.cellId.toString())
+                                .title(cell.cid.toString())
                                 .snippet("Some Details"))
                     }
                 }
