@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,7 +43,7 @@ class CellMapFragment :
     private var mLocationPermission: Boolean = false
 
     private var currentCellSubscription: Disposable? = null;
-    private var currentCellMarker: Marker? = null;
+    private var markers: List<Marker> = listOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -60,15 +61,18 @@ class CellMapFragment :
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        currentCellSubscription = MainActivity.cellInfoService?.activeCellDetails
+        // display all the current cells on the map
+        currentCellSubscription = MainActivity.cellInfoService?.cellDetailsList
                 ?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribe { cell ->
+                ?.subscribe { cellList ->
                     run {
-                        currentCellMarker?.remove();
-                        currentCellMarker = mMap?.addMarker(MarkerOptions()
-                                .position(cell.getLocation())
-                                .title(cell.cid.toString())
-                                .snippet("Some Details"))
+                        Log.d(this.javaClass.canonicalName, "Replacing cell markers")
+                        markers.forEach(Marker::remove)
+                        markers = cellList.map{c -> mMap?.addMarker(MarkerOptions()
+                                .position(c.getLocation())
+                                .rotation(if (c.registered) 90F else 0F)    // TODO make different icons instead
+                                .title(c.cid.toString())
+                                .snippet("Some Details"))!!}
                     }
                 }
 

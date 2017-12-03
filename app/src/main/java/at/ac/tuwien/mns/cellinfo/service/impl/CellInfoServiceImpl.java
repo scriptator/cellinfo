@@ -62,6 +62,7 @@ public class CellInfoServiceImpl implements CellInfoService {
                 .map(list -> {
                     for (CellDetails c: list) {
                         if (c.getRegistered()) {
+                            Log.i(LOG_TAG, "Active cell: " + c);
                             return c;
                         }
                     }
