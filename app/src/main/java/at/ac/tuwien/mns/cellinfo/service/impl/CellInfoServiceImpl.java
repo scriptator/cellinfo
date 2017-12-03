@@ -51,58 +51,27 @@ public class CellInfoServiceImpl implements CellInfoService {
     }
 
     @Override
-    public synchronized List<CellInfo> getAllCellInfo() {
-        return cellInfoList;
+    public synchronized List<Cell> getAllCellInfo() {
+        return parseCellInfoList(cellInfoList);
     }
 
     @Override
     public synchronized Cell getActiveCellInfo() {
-        Cell result = new Cell();
-        int mcc = 0, mnc = 0, lac = 0, cid = 0;
-        String radio = "";
-
-        if (activeCellInfo instanceof CellInfoWcdma) {
-            CellInfoWcdma cellInfoWcdma = (CellInfoWcdma) activeCellInfo;
-            mcc = cellInfoWcdma.getCellIdentity().getMcc();
-            mnc = cellInfoWcdma.getCellIdentity().getMnc();
-            lac = cellInfoWcdma.getCellIdentity().getLac();
-            cid = cellInfoWcdma.getCellIdentity().getCid();
-            radio = "wcdma";
-        } else if (activeCellInfo instanceof CellInfoLte) {
-            CellInfoLte cellInfoLte = (CellInfoLte) activeCellInfo;
-            mcc = cellInfoLte.getCellIdentity().getMcc();
-            mnc = cellInfoLte.getCellIdentity().getMnc();
-            lac = cellInfoLte.getCellIdentity().getTac();
-            cid = cellInfoLte.getCellIdentity().getCi();
-            radio = "lte";
-        } else if (activeCellInfo instanceof CellInfoGsm) {
-            CellInfoGsm cellInfoGsm = (CellInfoGsm) activeCellInfo;
-            mcc = cellInfoGsm.getCellIdentity().getMcc();
-            mnc = cellInfoGsm.getCellIdentity().getMnc();
-            lac = cellInfoGsm.getCellIdentity().getLac();
-            cid = cellInfoGsm.getCellIdentity().getCid();
-            radio = "gsm";
-        }
-        result.setMcc(mcc);
-        result.setMnc(mnc);
-        result.setLac(lac);
-        result.setCellId(cid);
-        result.setRadio(radio);
-        return result;
+        return parseCellInfo(activeCellInfo);
     }
 
     @Override
-    public <T extends CellInfo> List<T> getSpecificTypesOfCellInfo(Class<T> tClass) {
-        List<T> result = new ArrayList<>();
+    public <T extends CellInfo> List<Cell> getSpecificTypesOfCellInfo(Class<T> tClass) {
+        List<CellInfo> result = new ArrayList<>();
         if (cellInfoList == null) {
-            return result;
+            return new ArrayList<>();
         }
         for (CellInfo cellInfo : cellInfoList) {
             if (tClass.equals(cellInfo.getClass())) {
-                result.add((T) cellInfo);
+                result.add(cellInfo);
             }
         }
-        return result;
+        return parseCellInfoList(result);
     }
 
     private synchronized void setActiveCellInfo(CellInfo activeCellInfo) {
@@ -136,5 +105,48 @@ public class CellInfoServiceImpl implements CellInfoService {
             }
         }
         return new ArrayList<>();
+    }
+
+    private List<Cell> parseCellInfoList(List<CellInfo> cellInfoList) {
+        List<Cell> result = new ArrayList<>();
+        for (CellInfo cellInfo : cellInfoList) {
+            result.add(parseCellInfo(cellInfo));
+        }
+        return result;
+    }
+
+    private Cell parseCellInfo(CellInfo cellInfo) {
+        Cell result = new Cell();
+        int mcc = 0, mnc = 0, lac = 0, cid = 0;
+        String radio = "";
+
+        if (activeCellInfo instanceof CellInfoWcdma) {
+            CellInfoWcdma cellInfoWcdma = (CellInfoWcdma) activeCellInfo;
+            mcc = cellInfoWcdma.getCellIdentity().getMcc();
+            mnc = cellInfoWcdma.getCellIdentity().getMnc();
+            lac = cellInfoWcdma.getCellIdentity().getLac();
+            cid = cellInfoWcdma.getCellIdentity().getCid();
+            radio = "wcdma";
+        } else if (activeCellInfo instanceof CellInfoLte) {
+            CellInfoLte cellInfoLte = (CellInfoLte) activeCellInfo;
+            mcc = cellInfoLte.getCellIdentity().getMcc();
+            mnc = cellInfoLte.getCellIdentity().getMnc();
+            lac = cellInfoLte.getCellIdentity().getTac();
+            cid = cellInfoLte.getCellIdentity().getCi();
+            radio = "lte";
+        } else if (activeCellInfo instanceof CellInfoGsm) {
+            CellInfoGsm cellInfoGsm = (CellInfoGsm) activeCellInfo;
+            mcc = cellInfoGsm.getCellIdentity().getMcc();
+            mnc = cellInfoGsm.getCellIdentity().getMnc();
+            lac = cellInfoGsm.getCellIdentity().getLac();
+            cid = cellInfoGsm.getCellIdentity().getCid();
+            radio = "gsm";
+        }
+        result.setMcc(mcc);
+        result.setMnc(mnc);
+        result.setLac(lac);
+        result.setCellId(cid);
+        result.setRadio(radio);
+        return result;
     }
 }

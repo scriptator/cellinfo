@@ -17,7 +17,7 @@ public interface CellInfoService {
      *
      * @return
      */
-    List<CellInfo> getAllCellInfo();
+    List<Cell> getAllCellInfo();
 
     /**
      * Retrieve the active cell information
@@ -31,5 +31,5 @@ public interface CellInfoService {
      *
      * @param <T>
      */
-    <T extends CellInfo> List<T> getSpecificTypesOfCellInfo(Class<T> tClass);
+    <T extends CellInfo> List<Cell> getSpecificTypesOfCellInfo(Class<T> tClass);
 }
