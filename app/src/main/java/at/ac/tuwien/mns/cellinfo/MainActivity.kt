@@ -1,24 +1,22 @@
 package at.ac.tuwien.mns.cellinfo
 
+import android.os.Bundle
 import android.support.design.widget.TabLayout
-import android.support.v7.app.AppCompatActivity
-
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import android.os.Bundle
-import android.telephony.*
+import android.support.v7.app.AppCompatActivity
+import android.telephony.CellInfoCdma
+import android.telephony.CellInfoGsm
+import android.telephony.CellInfoLte
+import android.telephony.CellInfoWcdma
 import android.view.Menu
 import android.view.MenuItem
 import at.ac.tuwien.mns.cellinfo.fragments.CellListViewFragment
 import at.ac.tuwien.mns.cellinfo.fragments.CellMapFragment
 import at.ac.tuwien.mns.cellinfo.service.CellInfoService
-
-import kotlinx.android.synthetic.main.activity_main.*
 import at.ac.tuwien.mns.cellinfo.service.impl.CellInfoServiceImpl
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -53,6 +51,7 @@ class MainActivity : AppCompatActivity() {
 
         while (true) {
             println("All cell infos: " + (cellInfoService as CellInfoServiceImpl).allCellInfo)
+            println("Active cell info: " + (cellInfoService as CellInfoServiceImpl).activeCellInfo)
             println("CellInfoWcdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoWcdma::class.java))
             println("CellInfoCdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoCdma::class.java))
             println("CellInfoLte types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoLte::class.java))

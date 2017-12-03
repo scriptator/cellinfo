@@ -12,12 +12,14 @@ public interface CellInfoService {
 
     /**
      * Retrieve the actual cell informations (active + neighbouring)
+     *
      * @return
      */
     List<CellInfo> getAllCellInfo();
 
     /**
      * Retrieve the active cell information
+     *
      * @return
      */
     CellInfo getActiveCellInfo();

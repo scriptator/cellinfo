@@ -5,7 +5,7 @@ import com.google.android.gms.maps.model.LatLng
 /**
  * Created by johannesvass on 02.12.17.
  */
-class CellDetails: Cell() {
+class CellDetails : Cell() {
     val lat: Double = Double.NaN
     val lon: Double = Double.NaN
 

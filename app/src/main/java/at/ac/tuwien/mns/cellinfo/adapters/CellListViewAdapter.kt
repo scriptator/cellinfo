@@ -43,10 +43,10 @@ class CellListViewAdapter(private val activity: Activity) : BaseAdapter() {
             view = convertView
             rowHolder = view.tag as ListRowHolder
         }
-        val color: Int = if(position != 0) {
+        val color: Int = if (position != 0) {
             ContextCompat.getColor(rowHolder.icon?.context, R.color.colorInactive)
         } else {
-            ContextCompat.getColor(rowHolder.icon?.context,R.color.colorPrimary)
+            ContextCompat.getColor(rowHolder.icon?.context, R.color.colorPrimary)
         }
         rowHolder.icon?.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         rowHolder.label?.text = cellList[position]

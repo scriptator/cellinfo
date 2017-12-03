@@ -3,16 +3,13 @@ package at.ac.tuwien.mns.cellinfo.service;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import at.ac.tuwien.mns.cellinfo.dto.Cell;
 import at.ac.tuwien.mns.cellinfo.dto.CellDetails;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 /**

@@ -9,8 +9,8 @@ import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.support.v4.app.Fragment
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -20,9 +20,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import at.ac.tuwien.mns.cellinfo.R
 import at.ac.tuwien.mns.cellinfo.service.MobileNetworkService
-import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
@@ -64,15 +64,17 @@ class CellMapFragment :
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        currentCellSubscription =  mobileNetworkService?.currentCell()
+        currentCellSubscription = mobileNetworkService?.currentCell()
                 ?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribe{ cell -> run {
-            currentCellMarker?.remove();
-            currentCellMarker = mMap?.addMarker(MarkerOptions()
-                    .position(cell.getLocation())
-                    .title(cell.cellId.toString())
-                    .snippet("Some Details"))
-        }}
+                ?.subscribe { cell ->
+                    run {
+                        currentCellMarker?.remove();
+                        currentCellMarker = mMap?.addMarker(MarkerOptions()
+                                .position(cell.getLocation())
+                                .title(cell.cellId.toString())
+                                .snippet("Some Details"))
+                    }
+                }
 
         mMap?.setInfoWindowAdapter(CellTowerMarkerPopupAdapter())
 
