@@ -8,6 +8,7 @@ import android.telephony.CellInfo;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoWcdma;
+import android.telephony.CellSignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -119,6 +120,7 @@ public class CellInfoServiceImpl implements CellInfoService {
         Cell result = new Cell();
         int mcc = 0, mnc = 0, lac = 0, cid = 0;
         String radio = "";
+        CellSignalStrength cellSignalStrength = null;
 
         if (activeCellInfo instanceof CellInfoWcdma) {
             CellInfoWcdma cellInfoWcdma = (CellInfoWcdma) activeCellInfo;
@@ -126,6 +128,7 @@ public class CellInfoServiceImpl implements CellInfoService {
             mnc = cellInfoWcdma.getCellIdentity().getMnc();
             lac = cellInfoWcdma.getCellIdentity().getLac();
             cid = cellInfoWcdma.getCellIdentity().getCid();
+            cellSignalStrength = cellInfoWcdma.getCellSignalStrength();
             radio = "wcdma";
         } else if (activeCellInfo instanceof CellInfoLte) {
             CellInfoLte cellInfoLte = (CellInfoLte) activeCellInfo;
@@ -133,6 +136,7 @@ public class CellInfoServiceImpl implements CellInfoService {
             mnc = cellInfoLte.getCellIdentity().getMnc();
             lac = cellInfoLte.getCellIdentity().getTac();
             cid = cellInfoLte.getCellIdentity().getCi();
+            cellSignalStrength = cellInfoLte.getCellSignalStrength();
             radio = "lte";
         } else if (activeCellInfo instanceof CellInfoGsm) {
             CellInfoGsm cellInfoGsm = (CellInfoGsm) activeCellInfo;
@@ -140,6 +144,7 @@ public class CellInfoServiceImpl implements CellInfoService {
             mnc = cellInfoGsm.getCellIdentity().getMnc();
             lac = cellInfoGsm.getCellIdentity().getLac();
             cid = cellInfoGsm.getCellIdentity().getCid();
+            cellSignalStrength = cellInfoGsm.getCellSignalStrength();
             radio = "gsm";
         }
         result.setMcc(mcc);
@@ -147,6 +152,7 @@ public class CellInfoServiceImpl implements CellInfoService {
         result.setLac(lac);
         result.setCellId(cid);
         result.setRadio(radio);
+        result.setStrength(cellSignalStrength);
         return result;
     }
 }

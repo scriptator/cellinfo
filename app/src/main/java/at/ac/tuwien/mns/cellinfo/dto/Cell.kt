@@ -1,5 +1,7 @@
 package at.ac.tuwien.mns.cellinfo.dto
 
+import android.telephony.CellSignalStrength
+
 /**
  * Created by johannesvass on 02.12.17.
  */
@@ -10,4 +12,6 @@ open class Cell {
 
     var cellId: Int = 0
     var radio: String = ""
+
+    var strength: CellSignalStrength? = null
 }
