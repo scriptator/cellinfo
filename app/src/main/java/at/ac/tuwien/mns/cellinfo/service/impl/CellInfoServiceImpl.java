@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import at.ac.tuwien.mns.cellinfo.service.CellInfoService;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -52,6 +51,20 @@ public class CellInfoServiceImpl implements CellInfoService {
     @Override
     public synchronized CellInfo getActiveCellInfo() {
         return activeCellInfo;
+    }
+
+    @Override
+    public <T extends CellInfo> List<T> getSpecificTypesOfCellInfo(Class<T> tClass) {
+        List<T> result = new ArrayList<>();
+        if (cellInfoList == null) {
+            return result;
+        }
+        for (CellInfo cellInfo : cellInfoList) {
+            if (tClass.equals(cellInfo.getClass())) {
+                result.add((T) cellInfo);
+            }
+        }
+        return result;
     }
 
     private synchronized void setActiveCellInfo(CellInfo activeCellInfo) {

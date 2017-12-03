@@ -21,4 +21,11 @@ public interface CellInfoService {
      * @return
      */
     CellInfo getActiveCellInfo();
+
+    /**
+     * Retrieve all specific types of cell info object from the cell info list
+     *
+     * @param <T>
+     */
+    <T extends CellInfo> List<T> getSpecificTypesOfCellInfo(Class<T> tClass);
 }

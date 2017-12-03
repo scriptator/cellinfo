@@ -7,7 +7,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.os.Bundle
-import android.telephony.CellInfo
+import android.telephony.*
 import android.view.Menu
 import android.view.MenuItem
 import at.ac.tuwien.mns.cellinfo.fragments.CellListViewFragment
@@ -52,7 +52,11 @@ class MainActivity : AppCompatActivity() {
         cellInfoService = CellInfoServiceImpl(this)
 
         while (true) {
-            println((cellInfoService as CellInfoServiceImpl).allCellInfo)
+            println("All cell infos: " + (cellInfoService as CellInfoServiceImpl).allCellInfo)
+            println("CellInfoWcdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoWcdma::class.java))
+            println("CellInfoCdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoCdma::class.java))
+            println("CellInfoLte types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoLte::class.java))
+            println("CellInfoGsm types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoGsm::class.java))
             Thread.sleep(1000)
         }
     }
