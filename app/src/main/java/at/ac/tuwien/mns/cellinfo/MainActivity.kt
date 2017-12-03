@@ -7,12 +7,19 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.os.Bundle
+import android.telephony.CellInfo
 import android.view.Menu
 import android.view.MenuItem
 import at.ac.tuwien.mns.cellinfo.fragments.CellListViewFragment
 import at.ac.tuwien.mns.cellinfo.fragments.CellMapFragment
+import at.ac.tuwien.mns.cellinfo.service.CellInfoService
 
 import kotlinx.android.synthetic.main.activity_main.*
+import at.ac.tuwien.mns.cellinfo.service.impl.CellInfoServiceImpl
+import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +32,7 @@ class MainActivity : AppCompatActivity() {
      * [android.support.v4.app.FragmentStatePagerAdapter].
      */
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+    private var cellInfoService: CellInfoService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,8 +49,13 @@ class MainActivity : AppCompatActivity() {
         container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabs))
         tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
 
-    }
+        cellInfoService = CellInfoServiceImpl(this)
 
+        while (true) {
+            println((cellInfoService as CellInfoServiceImpl).allCellInfo)
+            Thread.sleep(1000)
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
