@@ -4,7 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Color
+import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
@@ -25,11 +26,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import kotlinx.android.synthetic.main.cell_list_row.*
 
 
 /**
@@ -62,6 +62,9 @@ class CellMapFragment :
         mMap = googleMap
 
         // display all the current cells on the map
+        val antennaDrawable =  ContextCompat.getDrawable(context, R.drawable.ic_settings_input_antenna_black_24dp)
+        val activeCell: BitmapDescriptor = drawableToBitmapDescriptor(antennaDrawable, R.color.colorPrimary)
+        val neighboringCell: BitmapDescriptor = drawableToBitmapDescriptor(antennaDrawable, R.color.colorInactive)
         currentCellSubscription = MainActivity.cellInfoService?.cellDetailsList
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe { cellList ->
@@ -70,9 +73,8 @@ class CellMapFragment :
                         markers.forEach(Marker::remove)
                         markers = cellList.map{c -> mMap?.addMarker(MarkerOptions()
                                 .position(c.getLocation())
-                                .rotation(if (c.registered) 90F else 0F)    // TODO make different icons instead
-                                .title(c.cid.toString())
-                                .snippet("Some Details"))!!}
+                                .icon(if (c.registered) activeCell else neighboringCell)
+                                .title(c.cid.toString()))!!}
                     }
                 }
 
@@ -88,6 +90,20 @@ class CellMapFragment :
             this.zoomToCurrentLocation()
         }
     }
+
+    fun drawableToBitmapDescriptor(drawable: Drawable, color: Int = R.color.colorPrimary): BitmapDescriptor {
+        val canvas = Canvas()
+        val bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(),
+                Bitmap.Config.ARGB_8888)
+        canvas.setBitmap(bitmap)
+        drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+        drawable.setBounds(0, 0,
+                drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight())
+        drawable.draw(canvas)
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
+}
 
     override fun onResume() {
         mapView?.onResume()
