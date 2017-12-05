@@ -1,17 +1,18 @@
 package at.ac.tuwien.mns.cellinfo.dto
 
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.clustering.ClusterItem
 
 /**
  * Created by johannesvass on 02.12.17.
  */
-class CellDetails(c: Cell) : Cell(c) {
+class CellDetails(c: Cell) : Cell(c), ClusterItem {
     var lat: Double = Double.NaN
     var lon: Double = Double.NaN
 
     constructor() : this(Cell())
 
-    fun getLocation(): LatLng {
+    override fun getPosition(): LatLng {
         return LatLng(lat, lon)
     }
 
@@ -21,8 +22,6 @@ class CellDetails(c: Cell) : Cell(c) {
     }
 
     override fun toString(): String {
-        return "CellDetails(lat=$lat, lon=$lon)"
+        return "CellDetails(radio='$radio' ,strength=${strength?.dbm}, lac=$lac, cid=$cid, mnc=$mcc, mnc=$mcc registered=$registered)"
     }
-
-
 }

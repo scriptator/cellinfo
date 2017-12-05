@@ -3,6 +3,7 @@ package at.ac.tuwien.mns.cellinfo.service.impl;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoGsm;
@@ -14,7 +15,11 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import at.ac.tuwien.mns.cellinfo.dto.Cell;
@@ -120,7 +125,7 @@ public class CellInfoServiceImpl implements CellInfoService {
             }
             if (response.isSuccessful()) {
                 CellDetails enrichedCellDetails = new CellDetails(c);
-                enrichedCellDetails.setLocation(response.body().getLocation());
+                enrichedCellDetails.setLocation(response.body().getPosition());
                 cellDetailsList.add(enrichedCellDetails);
             } else {
                 throw new IOException("API Error: " + response.errorBody().string());
@@ -140,12 +145,28 @@ public class CellInfoServiceImpl implements CellInfoService {
         return new ArrayList<>();
     }
 
+    // parses the cell infos and removes duplicates
+    // often the active cell exists a second time, with different strength
+    @NonNull
     private List<Cell> parseCellInfoList(List<CellInfo> cellInfoList) {
-        List<Cell> result = new ArrayList<>();
+        HashSet<Cell> result = new HashSet<>();
         for (CellInfo cellInfo : cellInfoList) {
-            result.add(parseCellInfo(cellInfo));
+            Cell parsed = parseCellInfo(cellInfo);
+            boolean success = result.add(parsed);
+            if (!success) {
+                for (Cell other: result) {
+                    if (other == parsed) {
+                        Log.i(CellInfoServiceImpl.LOG_TAG, "Found duplicate cell, returning only one");
+                        if (parsed.getRegistered() ||
+                                parsed.getStrength().getDbm() > other.getStrength().getDbm()) {
+                            result.remove(other);
+                            result.add(parsed);
+                        }
+                    }
+                }
+            }
         }
-        return result;
+        return new ArrayList<>(result);
     }
 
     private Cell parseCellInfo(CellInfo cellInfo) {

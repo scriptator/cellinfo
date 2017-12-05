@@ -4,7 +4,9 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.location.Criteria
 import android.location.Location
@@ -13,23 +15,26 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import at.ac.tuwien.mns.cellinfo.MainActivity
 import at.ac.tuwien.mns.cellinfo.R
+import at.ac.tuwien.mns.cellinfo.dto.CellDetails
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.clustering.Cluster
+import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.cell_list_row.*
 
 
 /**
@@ -43,7 +48,9 @@ class CellMapFragment :
     private var mLocationPermission: Boolean = false
 
     private var currentCellSubscription: Disposable? = null;
-    private var markers: List<Marker> = listOf()
+
+    private var mClusterManager: ClusterManager<CellDetails>? = null
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -61,24 +68,28 @@ class CellMapFragment :
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // display all the current cells on the map
-        val antennaDrawable =  ContextCompat.getDrawable(context, R.drawable.ic_settings_input_antenna_black_24dp)
-        val activeCell: BitmapDescriptor = drawableToBitmapDescriptor(antennaDrawable, R.color.colorPrimary)
-        val neighboringCell: BitmapDescriptor = drawableToBitmapDescriptor(antennaDrawable, R.color.colorInactive)
+        // Initialize the manager with the context and the map.
+        // (Activity extends context, so we can pass 'this' in the constructor.)
+        mClusterManager = ClusterManager<CellDetails>(context, mMap)
+        mClusterManager!!.renderer = CellRenderer()
+
+        // Point the map's listeners at the listeners implemented by the cluster
+        // manager.
+        mMap?.setOnCameraIdleListener(mClusterManager)
+        mMap?.setOnMarkerClickListener(mClusterManager)
+
         currentCellSubscription = MainActivity.cellInfoService?.cellDetailsList
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe { cellList ->
                     run {
-                        Log.d(this.javaClass.canonicalName, "Replacing cell markers")
-                        markers.forEach(Marker::remove)
-                        markers = cellList.map{c -> mMap?.addMarker(MarkerOptions()
-                                .position(c.getLocation())
-                                .icon(if (c.registered) activeCell else neighboringCell)
-                                .title(c.cid.toString()))!!}
+                        Log.d(this.javaClass.canonicalName, cellList.toString())
+                        Log.d(this.javaClass.canonicalName, "Adding new cells to cluster manager")
+                        // keep cluster manager's state up to date
+                        mClusterManager?.clearItems()
+                        mClusterManager?.addItems(cellList)
+                        mClusterManager?.cluster()
                     }
                 }
-
-        mMap?.setInfoWindowAdapter(CellTowerMarkerPopupAdapter())
 
         // try to zoom to current position
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -91,19 +102,42 @@ class CellMapFragment :
         }
     }
 
-    fun drawableToBitmapDescriptor(drawable: Drawable, color: Int = R.color.colorPrimary): BitmapDescriptor {
-        val canvas = Canvas()
-        val bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(),
-                Bitmap.Config.ARGB_8888)
-        canvas.setBitmap(bitmap)
-        drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-        drawable.setBounds(0, 0,
-                drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight())
-        drawable.draw(canvas)
-        return BitmapDescriptorFactory.fromBitmap(bitmap)
-}
+    private inner class CellRenderer : DefaultClusterRenderer<CellDetails>(context, mMap, mClusterManager) {
+        private val mActiveCell: BitmapDescriptor
+        private val mNeighboringCell: BitmapDescriptor
+
+        init {
+            // display all the current cells on the map
+            val antennaDrawable = ContextCompat.getDrawable(context, R.drawable.ic_settings_input_antenna_black_24dp)
+            mActiveCell = drawableToBitmapDescriptor(antennaDrawable, R.color.colorPrimary)
+            mNeighboringCell = drawableToBitmapDescriptor(antennaDrawable, R.color.colorInactive)
+        }
+
+        override fun onBeforeClusterItemRendered(cell: CellDetails, markerOptions: MarkerOptions) {
+            markerOptions
+                    .icon(if (cell.registered) mActiveCell else mNeighboringCell)
+                    .title(cell.cid.toString())
+                    .snippet(cell.toString())
+        }
+
+        override fun shouldRenderAsCluster(cluster: Cluster<CellDetails>): Boolean {
+            return cluster.getSize() > 1
+        }
+
+        private fun drawableToBitmapDescriptor(drawable: Drawable, color: Int = R.color.colorPrimary): BitmapDescriptor {
+            val canvas = Canvas()
+            val bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight(),
+                    Bitmap.Config.ARGB_8888)
+            canvas.setBitmap(bitmap)
+            drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+            drawable.setBounds(0, 0,
+                    drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight())
+            drawable.draw(canvas)
+            return BitmapDescriptorFactory.fromBitmap(bitmap)
+        }
+    }
 
     override fun onResume() {
         mapView?.onResume()
@@ -195,45 +229,5 @@ class CellMapFragment :
         override fun onProviderEnabled(provider: String) {}
 
         override fun onProviderDisabled(provider: String) {}
-    }
-
-    internal inner class CellTowerMarkerPopupAdapter : GoogleMap.InfoWindowAdapter {
-
-        private val mWindow: View = layoutInflater.inflate(R.layout.cell_tower_marker_popup, null)
-        private val mContents: View = layoutInflater.inflate(R.layout.cell_tower_marker_popup, null)
-
-        override fun getInfoWindow(marker: Marker): View {
-            render(marker, mWindow)
-            return mWindow
-        }
-
-        override fun getInfoContents(marker: Marker): View {
-            render(marker, mContents)
-            return mContents
-        }
-
-        private fun render(marker: Marker, view: View) {
-            val title = marker.title
-            val titleUi: TextView = view.findViewById(R.id.title)
-            if (title != null) {
-                // Spannable string allows us to edit the formatting of the text.
-                val titleText = SpannableString(title)
-                titleText.setSpan(ForegroundColorSpan(Color.RED), 0, titleText.length, 0)
-                titleUi.setText(titleText)
-            } else {
-                titleUi.setText("")
-            }
-
-            val snippet = marker.snippet
-            val snippetUi: TextView = view.findViewById(R.id.snippet)
-            if (snippet != null && snippet.length > 12) {
-                val snippetText = SpannableString(snippet)
-                snippetText.setSpan(ForegroundColorSpan(Color.MAGENTA), 0, 10, 0)
-                snippetText.setSpan(ForegroundColorSpan(Color.BLUE), 12, snippet.length, 0)
-                snippetUi.setText(snippetText)
-            } else {
-                snippetUi.setText("")
-            }
-        }
     }
 }
