@@ -1,6 +1,5 @@
 package at.ac.tuwien.mns.cellinfo.adapters
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.PorterDuff
 import android.support.v4.content.ContextCompat
@@ -11,29 +10,40 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import at.ac.tuwien.mns.cellinfo.R
+import at.ac.tuwien.mns.cellinfo.dto.CellDetails
 
 /**
  * Created by dominik on 30.11.2017.
  */
-class CellListViewAdapter(private val activity: Activity) : BaseAdapter() {
+class CellListViewAdapter(context: Context, cells: List<CellDetails>) : BaseAdapter() {
 
-    private var cellList = arrayOf("CellOne", "CellTwo", "CellThree", "CellFour", "CellFive", "CellSix")
+    private val inflater: LayoutInflater
+    private var cells : List<CellDetails>
+
+    init {
+        this.cells = cells
+        this.inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    }
 
     override fun getCount(): Int {
-        return cellList.size
+        return cells.size
     }
 
     override fun getItem(i: Int): Any {
-        return cellList[i]
+        return cells[i]
     }
 
     override fun getItemId(i: Int): Long {
         return i.toLong()
     }
 
+    fun addAll(cells: List<CellDetails>) {
+        this.cells = cells
+    }
+
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
         val view: View?
-        val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val rowHolder: ListRowHolder
         if (convertView == null) {
             view = inflater.inflate(R.layout.cell_list_row, parent, false)
@@ -43,13 +53,13 @@ class CellListViewAdapter(private val activity: Activity) : BaseAdapter() {
             view = convertView
             rowHolder = view.tag as ListRowHolder
         }
-        val color: Int = if (position != 0) {
-            ContextCompat.getColor(rowHolder.icon?.context, R.color.colorInactive)
-        } else {
+        val color: Int = if (cells[position].registered) {
             ContextCompat.getColor(rowHolder.icon?.context, R.color.colorPrimary)
+        } else {
+            ContextCompat.getColor(rowHolder.icon?.context, R.color.colorInactive)
         }
         rowHolder.icon?.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-        rowHolder.label?.text = cellList[position]
+        rowHolder.label?.text = cells[position].cid.toString()
         return view
     }
 

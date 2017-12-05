@@ -15,6 +15,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -47,7 +48,7 @@ class CellMapFragment :
     private var mMap: GoogleMap? = null
     private var mLocationPermission: Boolean = false
 
-    private var currentCellSubscription: Disposable? = null;
+    private var currentCellSubscription: Disposable? = null
 
     private var mClusterManager: ClusterManager<CellDetails>? = null
 
@@ -126,11 +127,11 @@ class CellMapFragment :
 
         private fun drawableToBitmapDescriptor(drawable: Drawable, color: Int = R.color.colorPrimary): BitmapDescriptor {
             val canvas = Canvas()
+            DrawableCompat.setTint(drawable, ContextCompat.getColor(context, color))
             val bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
                     drawable.getIntrinsicHeight(),
                     Bitmap.Config.ARGB_8888)
             canvas.setBitmap(bitmap)
-            drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
             drawable.setBounds(0, 0,
                     drawable.getIntrinsicWidth(),
                     drawable.getIntrinsicHeight())
