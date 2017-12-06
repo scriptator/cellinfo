@@ -16,6 +16,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import android.content.Intent
 import at.ac.tuwien.mns.cellinfo.DetailActivity
+import java.util.*
 
 
 /**
@@ -48,7 +49,8 @@ class CellListViewFragment : Fragment(), AdapterView.OnItemClickListener {
                                 break
                             }
                         }
-                        cells.addAll(cellList)
+                        var sortedCellList = cellList.sortedWith(compareBy(CellDetails::strength)).reversed()
+                        cells.addAll(sortedCellList)
                         adapter?.addAll(cells)
                         adapter?.notifyDataSetChanged()
                     }
