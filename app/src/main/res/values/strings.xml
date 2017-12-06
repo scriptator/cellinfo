@@ -3,4 +3,11 @@
     <string name="tab_text_1">List</string>
     <string name="tab_text_2">Map</string>
     <string name="action_settings">Settings</string>
+    <string name="details">Details</string>
+    <string name="radio">Signalstärke (RSSI):</string>
+    <string name="type">Zellentyp:</string>
+    <string name="mcc">Mobile Country Code (MCC):</string>
+    <string name="mnc">Mobile Network ID:</string>
+    <string name="lac">Location Area Code (LAC):</string>
+    <string name="cid">Cell ID (CID):</string>
 </resources>

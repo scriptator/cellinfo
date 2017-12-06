@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="at.ac.tuwien.mns.cellinfo.DetailActivity">
+
+    <TextView
+        android:id="@+id/details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="29dp"
+        android:text="@string/details"
+        android:textAppearance="@android:style/TextAppearance.Material.Title"
+        android:layout_marginTop="29dp" />
+
+    <TextView
+        android:id="@+id/strengthLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/radio"
+        android:layout_marginStart="29dp"
+        android:layout_marginTop="75dp" />
+
+    <TextView
+        android:id="@+id/radioLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/type"
+        android:layout_marginStart="239dp"
+        android:layout_marginTop="75dp" />
+
+    <TextView
+        android:id="@+id/strength"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAppearance="@android:style/TextAppearance.Material.Large"
+        android:textStyle="bold"
+        android:layout_marginStart="29dp"
+        android:layout_marginTop="106dp" />
+
+    <TextView
+        android:id="@+id/radio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAppearance="@android:style/TextAppearance.Material.Large"
+        android:textStyle="bold"
+        android:layout_marginStart="239dp"
+        android:layout_marginTop="106dp" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="2dp"
+        android:layout_marginStart="29dp"
+        android:layout_marginEnd="29dp"
+        android:layout_marginTop="161dp" />
+
+    <TextView
+        android:id="@+id/cidLabel"
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="19dp"
+        android:text="@string/cid"
+        android:layout_marginStart="29dp"
+        android:layout_marginTop="181dp" />
+
+    <TextView
+        android:id="@+id/mccLabel"
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="19dp"
+        android:text="@string/mcc"
+        android:layout_marginStart="29dp"
+        android:layout_marginTop="211dp" />
+
+    <TextView
+        android:id="@+id/mncLabel"
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="19dp"
+        android:text="@string/mnc"
+        android:layout_marginStart="29dp"
+        android:layout_marginTop="243dp" />
+
+    <TextView
+        android:id="@+id/lacLabel"
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="19dp"
+        android:text="@string/lac"
+        android:layout_marginStart="29dp"
+        android:layout_marginTop="275dp" />
+
+
+    <TextView
+        android:id="@+id/cid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAppearance="@android:style/TextAppearance.Material.Body1"
+        android:layout_marginStart="239dp"
+        android:layout_marginTop="181dp" />
+
+    <TextView
+        android:id="@+id/mcc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAppearance="@android:style/TextAppearance.Material.Body1"
+        android:layout_marginStart="239dp"
+        android:layout_marginTop="211dp" />
+
+    <TextView
+        android:id="@+id/mnc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAppearance="@android:style/TextAppearance.Material.Body1"
+        android:layout_marginStart="239dp"
+        android:layout_marginTop="243dp" />
+
+    <TextView
+        android:id="@+id/lac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAppearance="@android:style/TextAppearance.Material.Body1"
+        android:layout_marginStart="239dp"
+        android:layout_marginTop="275dp" />
+
+
+</android.support.constraint.ConstraintLayout>

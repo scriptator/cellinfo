@@ -158,7 +158,7 @@ public class CellInfoServiceImpl implements CellInfoService {
                     if (other == parsed) {
                         Log.i(CellInfoServiceImpl.LOG_TAG, "Found duplicate cell, returning only one");
                         if (parsed.getRegistered() ||
-                                parsed.getStrength().getDbm() > other.getStrength().getDbm()) {
+                                parsed.getStrength() > other.getStrength()) {
                             result.remove(other);
                             result.add(parsed);
                         }
@@ -210,7 +210,9 @@ public class CellInfoServiceImpl implements CellInfoService {
         result.setCid(cid);
         result.setRadio(radio);
         result.setRegistered(registered);
-        result.setStrength(cellSignalStrength);
+        if (cellSignalStrength != null) {
+            result.setStrength(cellSignalStrength.getDbm());
+        }
         return result;
     }
 }

@@ -1,20 +1,19 @@
 package at.ac.tuwien.mns.cellinfo.dto
 
-import android.telephony.CellSignalStrength
+import java.io.Serializable
 
 /**
  * Created by johannesvass on 02.12.17.
  */
-open class Cell {
+open class Cell: Serializable{
+
     var mcc: Int = 0
     var mnc: Int = 0
     var lac: Int = 0
-
     var cid: Int = 0
+    var strength: Int = 0
     var radio: String = ""
-
     var registered: Boolean = false
-    var strength: CellSignalStrength? = null
 
     constructor()
     constructor(other: Cell) {

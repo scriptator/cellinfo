@@ -3,10 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:focusable="true"
-    android:clickable="true"
     android:minHeight="48dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:descendantFocusability="blocksDescendants">
 
     <ImageView android:id="@+id/icon"
         android:layout_width="wrap_content"

@@ -44,15 +44,6 @@ class MainActivity : AppCompatActivity() {
 
         cellInfoService = CellInfoServiceImpl(this, getString(R.string.opencellid_key))
 
-//        while (true) {
-//            println("All cell infos: " + (cellInfoService as CellInfoServiceImpl).allCellInfo)
-//            println("Active cell info: " + (cellInfoService as CellInfoServiceImpl).activeCellInfo)
-//            println("CellInfoWcdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoWcdma::class.java))
-//            println("CellInfoCdma types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoCdma::class.java))
-//            println("CellInfoLte types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoLte::class.java))
-//            println("CellInfoGsm types: " + (cellInfoService as CellInfoServiceImpl).getSpecificTypesOfCellInfo(CellInfoGsm::class.java))
-//            Thread.sleep(1000)
-//        }
     }
 
     // No settings menu needed at the moment

@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ListView
 import at.ac.tuwien.mns.cellinfo.MainActivity
 import at.ac.tuwien.mns.cellinfo.R
@@ -13,11 +14,15 @@ import at.ac.tuwien.mns.cellinfo.adapters.CellListViewAdapter
 import at.ac.tuwien.mns.cellinfo.dto.CellDetails
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import android.content.Intent
+import at.ac.tuwien.mns.cellinfo.DetailActivity
+import at.ac.tuwien.mns.cellinfo.dto.Cell
+
 
 /**
  * Created by johannesvass on 27.11.17.
  */
-class CellListViewFragment : Fragment() {
+class CellListViewFragment : Fragment(), AdapterView.OnItemClickListener {
 
     private var currentCellSubscription: Disposable? = null
     private var listView: ListView? = null
@@ -29,12 +34,14 @@ class CellListViewFragment : Fragment() {
         listView = rootView.findViewById<ListView>(R.id.cell_list_view)
         adapter = CellListViewAdapter(context, ArrayList(0))
         listView?.adapter = adapter
+        listView?.onItemClickListener = this
         currentCellSubscription = MainActivity.cellInfoService?.cellDetailsList
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe { cellList ->
                     run {
                         Log.d(this.javaClass.canonicalName, "Adding new cells to list")
                         var cells = ArrayList<CellDetails>()
+                        // find active cell and add it as first item to list
                         for (cell in cellList) {
                             if (cell.registered) {
                                 cells.add(cell)
@@ -48,7 +55,6 @@ class CellListViewFragment : Fragment() {
                     }
                 }
 
-
         return rootView
     }
 
@@ -58,7 +64,15 @@ class CellListViewFragment : Fragment() {
     }
 
 
+    override fun onItemClick(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
+        val intent = Intent(context, DetailActivity::class.java)
+        intent.putExtra(CELL_DETAILS, parent?.getItemAtPosition(pos) as CellDetails)
+        startActivity(intent)
+    }
+
     companion object {
+
+        val CELL_DETAILS = "CELL_DETAILS"
         /**
          * The fragment argument representing the section number for this
          * fragment.

@@ -1,12 +1,18 @@
 package at.ac.tuwien.mns.cellinfo.dto
 
+import android.os.Parcelable
+import android.telephony.CellSignalStrength
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
+import java.io.IOException
+import java.io.ObjectOutputStream
+import java.io.Serializable
+
 
 /**
  * Created by johannesvass on 02.12.17.
  */
-class CellDetails(c: Cell) : Cell(c), ClusterItem {
+class CellDetails(c: Cell) : Cell(c), ClusterItem, Serializable{
     var lat: Double = Double.NaN
     var lon: Double = Double.NaN
 
@@ -22,6 +28,6 @@ class CellDetails(c: Cell) : Cell(c), ClusterItem {
     }
 
     override fun toString(): String {
-        return "CellDetails(radio='$radio' ,strength=${strength?.dbm}, lac=$lac, cid=$cid, mnc=$mcc, mnc=$mcc registered=$registered)"
+        return "CellDetails(radio='$radio' ,strength=${strength}, lac=$lac, cid=$cid, mnc=$mcc, mnc=$mcc registered=$registered)"
     }
 }
