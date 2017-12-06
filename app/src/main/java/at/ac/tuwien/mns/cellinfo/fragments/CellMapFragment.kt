@@ -26,10 +26,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
@@ -43,6 +40,7 @@ import io.reactivex.disposables.Disposable
 class CellMapFragment :
         Fragment(),
         OnMapReadyCallback {
+
     private var mapView: MapView? = null
     private var mMap: GoogleMap? = null
     private var mLocationPermission: Boolean = false
@@ -97,7 +95,7 @@ class CellMapFragment :
             this.mLocationPermission = false
         } else {
             this.mLocationPermission = true
-            mMap?.setMyLocationEnabled(true)
+            mMap?.isMyLocationEnabled = true
             this.zoomToCurrentLocation()
         }
     }
@@ -117,23 +115,23 @@ class CellMapFragment :
             markerOptions
                     .icon(if (cell.registered) mActiveCell else mNeighboringCell)
                     .title(cell.cid.toString())
-                    .snippet(cell.toString())
+                    .snippet(cell.toShortString())
         }
 
         override fun shouldRenderAsCluster(cluster: Cluster<CellDetails>): Boolean {
-            return cluster.getSize() > 1
+            return cluster.size > 1
         }
 
         private fun drawableToBitmapDescriptor(drawable: Drawable, color: Int = R.color.colorPrimary): BitmapDescriptor {
             val canvas = Canvas()
             DrawableCompat.setTint(drawable, ContextCompat.getColor(context, color))
-            val bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                    drawable.getIntrinsicHeight(),
+            val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth,
+                    drawable.intrinsicHeight,
                     Bitmap.Config.ARGB_8888)
             canvas.setBitmap(bitmap)
             drawable.setBounds(0, 0,
-                    drawable.getIntrinsicWidth(),
-                    drawable.getIntrinsicHeight())
+                    drawable.intrinsicWidth,
+                    drawable.intrinsicHeight)
             drawable.draw(canvas)
             return BitmapDescriptorFactory.fromBitmap(bitmap)
         }

@@ -24,6 +24,10 @@ class CellDetails(c: Cell) : Cell(c), ClusterItem, Serializable{
     }
 
     override fun toString(): String {
-        return "CellDetails(radio='$radio' ,strength=${strength}, lac=$lac, cid=$cid, mnc=$mcc, mnc=$mcc registered=$registered)"
+        return "CellDetails(radio='$radio' ,strength=${strength}, lac=$lac, cid=$cid, mnc=$mnc, mcc=$mcc registered=$registered)"
+    }
+
+    fun toShortString(): String {
+        return "radio='$radio' ,strength=${strength}, mnc=$mnc, mcc=$mcc"
     }
 }
