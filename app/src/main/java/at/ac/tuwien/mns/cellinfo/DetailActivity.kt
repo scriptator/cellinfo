@@ -2,9 +2,7 @@ package at.ac.tuwien.mns.cellinfo
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
-import at.ac.tuwien.mns.cellinfo.dto.Cell
 import at.ac.tuwien.mns.cellinfo.dto.CellDetails
 import at.ac.tuwien.mns.cellinfo.fragments.CellListViewFragment
 
@@ -14,9 +12,7 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        val intent = intent
         val cellDetails = intent.extras.getSerializable(CellListViewFragment.CELL_DETAILS) as CellDetails
-
         setCellDetailsInLayout(cellDetails)
     }
 
@@ -35,6 +31,5 @@ class DetailActivity : AppCompatActivity() {
         mnc.text = cellDetails.mnc.toString()
         lac.text = cellDetails.lac.toString()
         cid.text = cellDetails.cid.toString()
-
     }
 }

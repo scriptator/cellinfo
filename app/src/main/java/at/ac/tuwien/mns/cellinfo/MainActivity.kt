@@ -6,8 +6,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
 import at.ac.tuwien.mns.cellinfo.fragments.CellListViewFragment
 import at.ac.tuwien.mns.cellinfo.fragments.CellMapFragment
 import at.ac.tuwien.mns.cellinfo.service.CellInfoService

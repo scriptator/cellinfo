@@ -4,7 +4,6 @@ import android.telephony.CellInfo;
 
 import java.util.List;
 
-import at.ac.tuwien.mns.cellinfo.dto.Cell;
 import at.ac.tuwien.mns.cellinfo.dto.CellDetails;
 import io.reactivex.Observable;
 

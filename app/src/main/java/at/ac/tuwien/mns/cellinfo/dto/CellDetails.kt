@@ -1,11 +1,7 @@
 package at.ac.tuwien.mns.cellinfo.dto
 
-import android.os.Parcelable
-import android.telephony.CellSignalStrength
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
-import java.io.IOException
-import java.io.ObjectOutputStream
 import java.io.Serializable
 
 

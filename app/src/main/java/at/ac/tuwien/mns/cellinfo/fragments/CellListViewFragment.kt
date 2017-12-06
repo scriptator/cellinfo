@@ -16,7 +16,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import android.content.Intent
 import at.ac.tuwien.mns.cellinfo.DetailActivity
-import at.ac.tuwien.mns.cellinfo.dto.Cell
 
 
 /**
